@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <title>Email Sender</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <div style="text-align: center;">
+      <p class="h1">My email Sender</p>
+      <button
+        type="button"
+        class="btn btn-primary"
+        id="btn-btn-primary"
+        v-if="buttonClicked"
+        v-on:click=" buttonClicked=false"
+      >
+        + Compose email
+      </button>
+    </div>
+      <email-sender v-if="buttonClicked==false" />
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    const app = new Vue({
+      el: "#app",
+      data: {
+        buttonClicked: true,
+      },
+      mounted() {
+        alert(`Make sure that you are login to your account from which you want to send email and follows these
+        two links to setup your account
+        
+        https://accounts.google.com/b/0/displayunlockcaptcha
+        `)
+      }
+    });
+    Vue.component("email-sender", {
+      data: function () {
+        return {
+          receiverEmailAddress: "",
+          emailSubject: "",
+          emailBody: "",
+          wrongEmail: "",
+          uploadedFile: null,
+        };
+      },
+      watch: {
+        receiverEmailAddress(value) {
+          if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value)) {
+            this.wrongEmail = "";
+          } else if (value === "") {
+            this.wrongEmail = "";
+          } else {
+            this.wrongEmail = "Invalid Email Address";
+          }
+        },
+      },
+      methods: {
+        handleFileUpload(event) {
+          this.uploadedFile = event.target.files[0];
+        },
+        sendRequest() {
+          const formData=new FormData()
+          formData.append("file",this.uploadedFile)
+          console.log("inport");
+          if(this.wrongEmail===""){
+            console.log(
+            `${this.receiverEmailAddress} ${this.emailSubject} ${this.emailBody}`
+          );
+         
+          axios
+            .post("http://localhost:3001/send/email", {
+                receiverMailAddress: this.receiverEmailAddress,
+                subject: this.emailSubject,
+                emailBody: this.emailBody,
+            })
+            .then((res) => console.log(res))
+            .catch((error) => console.log(error));
+
+          }
+      
+        },
+      },
+      template: `
+      <div style="margin-left: 20vh; margin-right: 20vh"> 
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label"
+          >Enter Receiver Email address</label
+        >
+        <input
+          type="email"
+          class="form-control"
+          id="exampleFormControlInput1"
+          v-model="receiverEmailAddress"
+          placeholder="name@example.com"
+          required
+        />
+        <span v-if="wrongEmail" style="color:red">{{wrongEmail}}</span>
+      </div>
+      <div class="mb-3">
+        <label for="exampleFormControlInput1" class="form-label"
+          >Subject</label
+        >
+        <input
+          type="text"
+          class="form-control"
+          id="exampleFormControlInput1"
+          v-model="emailSubject"
+          placeholder="Empty"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="exampleFormControlTextarea1" class="form-label"
+          >Email Body</label
+        >
+        <textarea
+          class="form-control"
+          id="exampleFormControlTextarea1"
+          rows="3"
+          v-model="emailBody"
+        ></textarea>
+      </div>
+      <div class="mb-3">
+      <label for="formFile" class="form-label">Send Attachment</label>
+          <input class="form-control" type="file" id="formFile" v-on:change="handleFileUpload">
+      </div>
+      <button type="button" class="btn btn-primary" style="margin-top:1vh" v-on:click="sendRequest">Send Email</button>
+      </div>
+
+      `,
+    });
+  </script>
+</html>

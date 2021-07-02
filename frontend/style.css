@@ -1,0 +1,16 @@
+.app{
+    text-align: center;
+}
+
+#btn-btn-primary{
+    position: relative;
+    top: 100px;
+}
+p{
+    text-align: center;
+    margin-top: 5vh;
+}
+.mb-31{
+    margin-top: 20vh;
+    margin-left: 20vh;
+}
